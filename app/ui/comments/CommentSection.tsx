@@ -155,15 +155,16 @@ export function CommentSection({
                 {comment.created_at}
               </span>
             </p>
-            {commentId === comment.id && aiReplyContent ? (
+            {commentId === comment.id ? (
               <div className="text-sm text-gray-600">
-                <div className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-auto min-h-24 mt-4 mb-4">
+                <div className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 h-auto min-h-24 mt-4 mb-4 bg-gray-50">
                   {isGeneratingReply ? "AI回复中,请稍候..." : aiReplyContent}
                 </div>
               </div>
             ) : (
               <div className="text-sm text-gray-600">
-                <div className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-auto min-h-24 mt-4 mb-4">
+               
+                <div className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 h-auto min-h-24 mt-4 mb-4 bg-gray-50">
                   {comment?.replies?.[0]?.content}
                 </div>
               </div>
