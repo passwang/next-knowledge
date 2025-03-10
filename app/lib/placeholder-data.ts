@@ -8,6 +8,27 @@ const users = [
     password: '123456',
   },
 ];
+const topics = [
+  {
+    name: '怎么实现css背景模糊效果',
+    cate: 'css',
+    cate_name: 'css题目',
+    content: '<p><strong>写在前面</strong></p><p>怎么实现css模糊效果</></p>',
+  },
+  {
+    name: '怎么实现css垂直居中',
+    cate: 'css',
+    cate_name: 'css题目',
+    content: '<p><strong>写在前面</strong></p><p>怎么实现css垂直居中</></p>',
+  },
+  {
+    name: 'react fiber',
+    cate: 'react',
+    cate_name: 'react题目',
+    content: '<p><strong>写在前面</strong></p><p>怎么实现react fiber</p>',
+  }
+]
+
 
 const customers = [
   {
@@ -144,4 +165,4 @@ const revenue = [
   { month: 'Dec', revenue: 4800 },
 ];
 
-export { users, customers, invoices, revenue };
+export { users, customers, invoices, revenue, topic, topics };

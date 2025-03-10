@@ -5,13 +5,13 @@ const shimmer =
 export function CardSkeleton() {
   return (
     <div
-      className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-100 p-2 shadow-sm`}
+      className={`${shimmer} relative overflow-hidden rounded-xl bg-gray-100 p-2 shadow-sm h-full w-full`}
     >
       <div className="flex p-4">
         <div className="h-5 w-5 rounded-md bg-gray-200" />
         <div className="ml-2 h-6 w-16 rounded-md bg-gray-200 text-sm font-medium" />
       </div>
-      <div className="flex items-center justify-center truncate rounded-xl bg-white px-4 py-8">
+      <div className="flex items-center justify-center truncate rounded-xl bg-white px-4 py-8 h-full w-full">
         <div className="h-7 w-20 rounded-md bg-gray-200" />
       </div>
     </div>
@@ -86,17 +86,10 @@ export default function DashboardSkeleton() {
   return (
     <>
       <div
-        className={`${shimmer} relative mb-4 h-8 w-36 overflow-hidden rounded-md bg-gray-100`}
+        className={`${shimmer} relative mb-4 overflow-y-auto w-36 overflow-hidden rounded-md bg-gray-100`}
       />
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="h-full w-full">
         <CardSkeleton />
-        <CardSkeleton />
-        <CardSkeleton />
-        <CardSkeleton />
-      </div>
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-        <RevenueChartSkeleton />
-        <LatestInvoicesSkeleton />
       </div>
     </>
   );
