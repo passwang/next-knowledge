@@ -6,23 +6,23 @@ type Link = {
   topic_name: string;
   content: string;
   topic_id: string;
-}[];
+};
 type Links = {
   cate: string;
   cate_name: string;
   topics: Link[];
   topic_count: string;
-}[];
+};
 export default function SearchComponent({ initialLinks }: { initialLinks: Links[] }) {
   const [links, setLinks] = useState<Links[]>(initialLinks);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const handleSearch = (e) => {
+  const handleSearch = (e: { target: { value: any; }; }) => {
     const query = e.target.value;
     setSearchQuery(query.trim());
   };
 
-  const handleKeyDown = async (e) => {
+  const handleKeyDown = async (e: { key: string; }) => {
     if (e.key === 'Enter') {
       setIsLoading(true);
       const response = await fetch(`/api/search?query=${searchQuery}`);

@@ -25,7 +25,7 @@ interface CommentSectionProps {
     content: string,
     is_ai_reply?: boolean
   ) => any;
-  loadMoreCommentsAction: (page: number) =>  void;
+  loadMoreCommentsAction: (page: number) =>  Promise<Comment[]>;
 }
 
 export function CommentSection({
@@ -50,8 +50,7 @@ export function CommentSection({
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
     setLoading(true);
-    const newComments = await loadMoreCommentsAction(page+1);
-    console.log('newComments1111', newComments)
+    const newComments = await loadMoreCommentsAction(page+1) as Comment[];
     if (newComments?.length > 0) {
       setPage((prev) => prev + 1);
       setCommentsArr((prev) => [...prev, ...newComments]);
@@ -122,7 +121,7 @@ export function CommentSection({
           .then(() => {
             console.log('AI reply added successfully');
           })
-          .catch((error) => {
+          .catch((error: any) => {
             console.error('Failed to add AI reply:', error);
           });
       }

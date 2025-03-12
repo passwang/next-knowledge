@@ -17,13 +17,13 @@ type Link = {
   topic_name: string;
   content: string;
   topic_id: string;
-}[];
+};
 type Links = {
   cate: string;
   cate_name: string;
   topics: Link[];
   topic_count: string;
-}[];
+};
 export default function NavLinks(props:{links: Links[]}) {
   const {links} = props;
   const pathname = usePathname();

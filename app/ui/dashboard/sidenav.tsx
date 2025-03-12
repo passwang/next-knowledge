@@ -10,15 +10,22 @@ type Link = {
   topic_name: string;
   content: string;
   topic_id: string;
-}[];
+};
 type Links = {
   cate: string;
   cate_name: string;
   topics: Link[];
   topic_count: string;
-}[];
+};
 export default async function SideNav() {
-  const initialLinks: Links[] = await fetchTopic(); 
+  const initialLinks: Links[] = await fetchTopic().then(data => 
+    data.map(row => ({
+      cate: row.cate,
+      cate_name: row.cate_name,
+      topics: row.topics,
+      topic_count: row.topic_count
+    }))
+  );
   return (
     <div className="flex h-full flex-col px-3 py-6 md:px-2 ">
       {/* 搜索 */}

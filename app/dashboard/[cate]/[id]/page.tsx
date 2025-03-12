@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { CommentSection } from '@/app/ui/comments/CommentSection'; // 假设有一个 CommentSection 组件用于展示评论
-export default async function Page({ params }: { params: { id: string, cate: string } }) {
+export default async function Page({ params }: { params: Promise<{ id: string; cate: string }> }) {
   const {cate, id } = await params;
   const topic = await fetchTopicById(id); // 获取文章内容
   if (!topic) {
