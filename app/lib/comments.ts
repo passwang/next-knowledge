@@ -27,8 +27,10 @@ export async function createCommentsTable() {
   `;
 }
 
-export async function fetchCommentsByTopicId(topic_id: string) {
+export async function fetchCommentsByTopicId(topic_id: string, page?: number) {
   try {
+    const limit = 10; // 每页显示的评论数量
+    const offset = page && (page - 1) * limit || 0; // 计算偏移量
     const data = await sql`SELECT
     id,
     content,
@@ -37,40 +39,41 @@ export async function fetchCommentsByTopicId(topic_id: string) {
     is_ai_reply
     FROM comments
      WHERE topic_id = ${topic_id}
-     ORDER BY created_at DESC;
+     ORDER BY created_at DESC
      `;
+    const commentsMap = new Map();
+    const result: any[] = [];
 
-   const commentsMap = new Map();
-   const result: any[] = [];
-
-   // 将所有评论和回复存储到 Map 中
-   data.forEach((comment) => {
-     commentsMap.set(comment.id, { ...comment, replies: [] });
-   });
-   data.forEach((comment) => {
-    if (comment.parent_comment_id !== null) {
-      const parentComment = commentsMap.get(comment.parent_comment_id);
-      if (parentComment) {
-        parentComment.replies.push(commentsMap.get(comment.id));
+    // 将所有评论和回复存储到 Map 中
+    data.forEach((comment) => {
+      commentsMap.set(comment.id, { ...comment, replies: [] });
+    });
+    data.forEach((comment) => {
+      if (comment.parent_comment_id !== null) {
+        const parentComment = commentsMap.get(comment.parent_comment_id);
+        if (parentComment) {
+          parentComment.replies.push(commentsMap.get(comment.id));
+        }
+      } else {
+        // 如果是顶级评论，直接添加到结果中
+        result.push(commentsMap.get(comment.id));
       }
+    });
+    // 对每个顶级评论的 replies 进行排序，将 AI 回复置顶
+    result.forEach((comment) => {
+      if (comment.replies && comment.replies.length > 0) {
+        comment.replies.sort((a: any, b: any) => {
+          if (a.is_ai_reply && !b.is_ai_reply) return -1; // a 是 AI 回复，置顶
+          if (!a.is_ai_reply && b.is_ai_reply) return 1;  // b 是 AI 回复，置顶
+          return 0; // 保持原有顺序
+        });
+      }
+    });
+    if (page) {
+      return result.slice(offset, offset + limit);
     } else {
-      // 如果是顶级评论，直接添加到结果中
-      result.push(commentsMap.get(comment.id));
+      return result;
     }
-  });
-  // 对每个顶级评论的 replies 进行排序，将 AI 回复置顶
-  result.forEach((comment) => {
-    if (comment.replies && comment.replies.length > 0) {
-      comment.replies.sort((a: any, b: any) => {
-        if (a.is_ai_reply && !b.is_ai_reply) return -1; // a 是 AI 回复，置顶
-        if (!a.is_ai_reply && b.is_ai_reply) return 1;  // b 是 AI 回复，置顶
-        return 0; // 保持原有顺序
-      });
-    }
-  });
-
-  return result; // 返回嵌套结构的评论数据
-
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch topic data.');

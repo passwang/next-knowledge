@@ -12,20 +12,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { useState } from 'react';
-import { type } from 'os';
 
-type Topic = {
+type Link = {
   topic_name: string;
   content: string;
   topic_id: string;
 }[];
-type TopicData = {
+type Links = {
   cate: string;
   cate_name: string;
-  topics: Topic[];
+  topics: Link[];
   topic_count: string;
 }[];
-export default function NavLinks(props:{links: TopicData}) {
+export default function NavLinks(props:{links: Links[]}) {
   const {links} = props;
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -45,7 +44,6 @@ export default function NavLinks(props:{links: TopicData}) {
               },)}
               onClick={() => link.topics && toggleDropdown(link.cate)}
             >
-               {/* <link.icon className="w-6" /> */}
               <p className="hidden md:block">{link.cate_name}</p>
               {link.topics && (openDropdown === link.cate ? (
                 <ChevronUpIcon className='w-4 absolute right-0 top-4'></ChevronUpIcon>
@@ -56,7 +54,7 @@ export default function NavLinks(props:{links: TopicData}) {
             {link.topics && openDropdown === link.cate && (
               <ul className="pl-4">
                 {link.topics.map((v: any) => (
-                  <li key={v.id}>
+                  <li key={v.id} >
                     <Link
                       href={`/dashboard/${link.cate}/${v.id}`}
                       className={clsx('flex h-[48px] cursor-pointer grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',  {

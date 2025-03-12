@@ -1,6 +1,7 @@
 "use client"; // 由于需要交互，必须标记为客户端组件
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
+
 interface Comment {
   id: string;
   content: string;
@@ -18,18 +19,20 @@ interface Reply {
 
 interface CommentSectionProps {
   comments: Comment[];
-  onAddComment: (content: string) => Promise<string>;
-  onAddReply: (
+  onAddCommentAction: (content: string) => Promise<string>;
+  onAddReplyAction: (
     commentId: string,
     content: string,
     is_ai_reply?: boolean
   ) => any;
+  loadMoreCommentsAction: (page: number) =>  void;
 }
 
 export function CommentSection({
   comments,
-  onAddComment,
-  onAddReply,
+  onAddCommentAction,
+  onAddReplyAction,
+  loadMoreCommentsAction,
 }: CommentSectionProps) {
   const [newComment, setNewComment] = useState(""); // 新评论内容
   const [replyingTo, setReplyingTo] = useState<string | null>(null); // 当前回复的评论 ID
@@ -39,13 +42,43 @@ export function CommentSection({
   const [commentId, setCommentId] = useState("");
   const [isAiReplyComplete, setIsAiReplyComplete] = useState(false);
   const [commentsArr, setCommentsArr] = useState<Comment[]>(comments);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastCommentElementRef = useRef<HTMLDivElement | null>(null);
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    const newComments = await loadMoreCommentsAction(page+1);
+    console.log('newComments1111', newComments)
+    if (newComments?.length > 0) {
+      setPage((prev) => prev + 1);
+      setCommentsArr((prev) => [...prev, ...newComments]);
+    } else {
+      setHasMore(false);
+    }
+    setLoading(false);
+  }, [loading, hasMore, page]);
+
+  useEffect(() => {
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMore();
+      }
+    });
+    if (lastCommentElementRef.current) {
+      observer.current.observe(lastCommentElementRef.current);
+    }
+  }, [commentsArr, hasMore]);
 
   // 处理添加评论
   const handleSubmitComment = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (!newComment.trim()) return;
-      const newCommentId = await onAddComment(newComment);
+      const newCommentId = await onAddCommentAction(newComment);
       setCommentId(newCommentId);
       setNewComment("");
       // 添加成功提示
@@ -85,7 +118,7 @@ export function CommentSection({
   useEffect(() => {
       try {
       if (commentId && aiReplyContent && isAiReplyComplete) {
-        onAddReply(commentId, aiReplyContent, true)
+        onAddReplyAction(commentId, aiReplyContent, true)
           .then(() => {
             console.log('AI reply added successfully');
           })
@@ -114,7 +147,7 @@ export function CommentSection({
     setReplyContent("");
     setReplyingTo(null);
     try {
-      await onAddReply(commentId, replyContent);
+      await  onAddReplyAction(commentId, replyContent);
     } catch (error) {
       setCommentsArr(comments);
     }
@@ -147,15 +180,19 @@ export function CommentSection({
 
       {/* 评论列表 */}
       <div className="space-y-4">
-        {commentsArr.map((comment) => (
-          <div key={comment.id} className="p-4 border rounded-lg">
+        {commentsArr.map((comment, index) => (
+          <div
+            key={comment.id}
+            className="p-4 border rounded-lg"
+            ref={index === commentsArr.length - 1 ? lastCommentElementRef : null}
+          >
             <p className="text-gray-700">
               {comment.content}
               <span className="text-gray-500 ml-4 text-sm">
                 {comment.created_at}
               </span>
             </p>
-            {commentId === comment.id ? (
+            {commentId === comment.id  ? (
               <div className="text-sm text-gray-600">
                 <div className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 h-auto min-h-24 mt-4 mb-4 bg-gray-50">
                   {isGeneratingReply ? "AI回复中,请稍候..." : aiReplyContent}
@@ -204,7 +241,7 @@ export function CommentSection({
                     <p>
                       {reply.content}
                       <span className="text-gray-500 ml-4 text-xs">
-                        {" "}
+                      
                         {reply.created_at}
                       </span>
                     </p>
@@ -214,6 +251,7 @@ export function CommentSection({
             )}
           </div>
         ))}
+        {loading && <div>加载中...</div>}
       </div>
     </div>
   );

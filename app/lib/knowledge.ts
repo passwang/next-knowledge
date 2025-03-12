@@ -1,3 +1,4 @@
+'use server';
 import postgres from 'postgres';
 import {
   CustomerField,
@@ -35,6 +36,31 @@ export async function fetchTopic() {
     throw new Error('Failed to fetch topic data.');
   }
 }
+
+export async function searchTopics(query: string) {
+  try {
+    const data = await sql`SELECT
+    MIN(cate_name) AS cate_name,
+    cate,
+    COUNT(*) AS topic_count,
+     jsonb_agg(
+      jsonb_build_object(
+        'id', id,
+        'topic_name', name,
+        'content', content
+      )
+    ) AS topics
+     FROM topics
+     WHERE name LIKE ${'%' + query + '%'} OR content LIKE ${'%' + query + '%'}
+     GROUP BY cate
+     `
+    return data;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to search topics.');
+  }
+}
+
 export async function fetchTopicById(topic_id: string) {
 
   try {

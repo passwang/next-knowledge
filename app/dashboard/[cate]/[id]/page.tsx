@@ -12,7 +12,7 @@ export default async function Page({ params }: { params: { id: string, cate: str
   if (!topic) {
     notFound();
   }
-  const comments = await fetchCommentsByTopicId(id); // 获取文章评论
+  const comments = await fetchCommentsByTopicId(id, 1); // 获取文章评论
   // 处理添加评论
   const handleAddComment = async (content: string) => {
     'use server';
@@ -28,6 +28,13 @@ export default async function Page({ params }: { params: { id: string, cate: str
     await addReply(commentId, content, is_ai_reply);
     revalidatePath(`/dashboard/${cate}/${id}`);
   };
+  // 加载更多
+  const loadMoreComments = async (page: number) => {
+    'use server';
+    const comment = await fetchCommentsByTopicId(id, page);
+    return comment;
+  };
+
 
   return (
     <main>
@@ -41,9 +48,10 @@ export default async function Page({ params }: { params: { id: string, cate: str
       <div className="mt-8 mb-8">
       <Suspense fallback={<p>Loading comments...</p>}>
         <CommentSection
-          comments={comments} // 使用从数据库获取的评论数据
-          onAddComment={handleAddComment}
-          onAddReply={handleAddReply}
+          comments={comments}
+          onAddCommentAction={handleAddComment}
+          onAddReplyAction={handleAddReply}
+          loadMoreCommentsAction={loadMoreComments}
         />
       </Suspense>
       </div>

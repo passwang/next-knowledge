@@ -4,7 +4,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' });
 import { revalidatePath } from 'next/cache';
-import { signIn } from '@/auth';
+import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 const FormSchema = z.object({
     id: z.string(),
@@ -73,6 +73,15 @@ export async function updateInvoice(id: string, formData: FormData) {
             return 'Something went wrong.';
         }
       }
+      throw error;
+    }
+  }
+  export async function handleSignOut(
+
+  ) {
+    try {
+      await signOut({ redirectTo: '/' });
+    } catch (error) {
       throw error;
     }
   }

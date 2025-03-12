@@ -14,6 +14,14 @@ const config: Config = {
       backgroundImage: {
         'gradient-to-r': 'linear-gradient(to right, var(--tw-gradient-stops))',
       },
+      navItem: {
+        'height': '32px',
+        'line-height': '32px',
+        'overflow': 'hidden',
+        'white-space': 'nowrap',
+        'text-overflow': 'ellipsis',
+        'max-width': '200px', // 将分号替换为逗号
+      },
       colors: {
         blue: {
           400: '#2589FE',
